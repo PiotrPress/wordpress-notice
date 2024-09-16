@@ -2,34 +2,46 @@
 
 namespace PiotrPress\WordPress;
 
+use PiotrPress\WordPress\Hooks\Action;
+use PiotrPress\Elementor\Element;
+
 \defined( 'ABSPATH' ) or exit;
 
 if( ! \class_exists( __NAMESPACE__ . '\Notice' ) ) {
     class Notice {
         const INFO = 'info';
+        const SUCCESS = 'success';
         const WARNING = 'warning';
         const ERROR = 'error';
-        const SUCCESS = 'success';
 
         private string $message;
         private string $type;
-        private bool $is_dismissible;
+        private bool $dismissible;
+        private bool $alt;
 
-        public function __construct( string $message, ?string $type = null, bool $is_dismissible = true ) {
+        public function __construct( string $message, ?string $type = null, bool $dismissible = false, bool $alt = false ) {
             $this->message = $message;
-            $this->is_dismissible = $is_dismissible;
+            $this->dismissible = $dismissible;
+            $this->alt = $alt;
 
-            if( \in_array( $type, [ null, self::INFO, self::WARNING, self::ERROR, self::SUCCESS ] ) ) $this->type = $type;
+            if( \in_array( $type, [ null, self::SUCCESS, self::INFO, self::WARNING, self::ERROR ] ) ) $this->type = $type;
             else throw new \InvalidArgumentException( "Unknown notice type: $type" );
-
-            \add_action( 'admin_notices', [ $this, 'display' ] );
         }
 
+        public function __toString() {
+            return (string) new Element( 'div', [
+                'class' => [
+                    'notice',
+                    ( $this->type ? "notice-{$this->type}" : null ),
+                    ( $this->dismissible ? 'is-dismissible' : null ),
+                    ( $this->alt ? 'notice-alt' : null )
+                ]
+            ], (string) new Element( 'p', [], $this->message ) );
+        }
+
+        #[ Action( 'admin_notices' ) ]
         public function display() {
-            echo '<div class="notice' . ( $this->type ? ' notice-' . $this->type : '' ) . ( $this->is_dismissible ? ' is-dismissible' : '' ) . '">';
-            echo '<p>' . $this->message . '</p>';
-            echo '</div>';
+            echo $this;
         }
-
     }
 }

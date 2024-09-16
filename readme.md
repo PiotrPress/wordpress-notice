@@ -13,10 +13,21 @@ $ composer require piotrpress/wordpress-notice
 ```php
 require __DIR__ . '/vendor/autoload.php';
 
-use PiotrPress\WordPress\Notice;
+namespace PiotrPress\WordPress;
 
-new Notice( 'This is an example notice message', 'error' );
+// Example #1
+echo new Notice( 'This is an example notice message', Notice::ERROR );
+
+// Example #2
+Hooks::add( new Notice( 'This is an example notice message', Notice::ERROR ) );
 ```
+
+## Arguments
+
+- `string` **$message** - The notice message.
+- `string` **$type** - The notice type. Possible values are `Notice::INFO`, `Notice::SUCCESS`, `Notice::WARNING`, `Notice::ERROR`. Default is `null`.
+- `bool` **$dismissible** - Whether the notice is dismissible. Possible values are `true`, `false`. Default is `false`.
+- `bool` **$alt** - The alternative notice display style (with filled-in background). Possible values are `true`, `false`. Default is `false`.
 
 ## Requirements
 
